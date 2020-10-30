@@ -1,20 +1,21 @@
 const path = require("path");
 const webpack = require('webpack');
-const HtmlWebPackPlugin = require("html-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
 const config = {
   mode: 'development',
   entry: {
-    main: './react-pokemon/index.js'
+    main: './client/index.js'
   },
   output: {
-    path: path.join(__dirname, 'public'),
+    path: path.join(__dirname, 'dist'),
     publicPath: '/',
     filename: '[name].js'
   },
   target: 'web',
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './public',
+    contentBase: './dist',
     hot: true
   },
   resolve: {
@@ -47,7 +48,13 @@ const config = {
        use: ['file-loader']
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: 'public/index.html',
+    })
+  ]
 };
 
 export default config;

@@ -8,21 +8,16 @@ import model, { connectDatabase } from './database/mongodb';
 import data from './database/seedData';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
-import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from '../webpack.config';
 
 // Create express app
 const app = express();
 
 // Configure express app to build client code
-config.entry['client'] = 'webpack-hot-middleware/client';
 const compiler = webpack(config);
 app.use(webpackDevMiddleware(compiler, {
     publicPath: config.output.publicPath,
     stats: { colors: true }
-}));
-app.use(webpackHotMiddleware(compiler, {
-    log: console.log
 }));
 
 /* Boiler plate. enables
@@ -31,11 +26,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // Home/Index route
 app.use('/', indexRouter);
-
 
 /** 
  * Use this endpoint for
@@ -78,7 +72,6 @@ app.get('/pokemon', (req, res) => {
         }
     });
 })
-
 
 const PORT = process.env.PORT || 8080;
 
