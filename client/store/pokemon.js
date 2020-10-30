@@ -7,6 +7,18 @@ export const ActionTypes = keyMirror("pokemon", {
     SEARCH_POKEMON: null,
     SEARCH_POKEMON_SUCCESS: null,
     SEARCH_POKEMON_ERROR: null,
+
+    GET_BAG: null,
+    GET_BAG_SUCCESS: null,
+    GET_BAG_ERROR: null,
+
+    ADD_TO_BAG: null,
+    ADD_TO_BAG_SUCCESS: null,
+    ADD_TO_BAG_ERROR: null,
+
+    REMOVE_FROM_BAG: null,
+    REMOVE_FROM_BAG_SUCCESS: null,
+    REMOVE_FROM_BAG_ERROR: null,
 });
 
 const actionsMap = {};
@@ -40,17 +52,102 @@ const reducer = handleActions({
         searchPokemonData: undefined,
         searchPokemonError: payload,
     }),
+
+    // GET_BAG
+    [ActionTypes.GET_BAG]: state => ({
+        ...state,
+        getBagLoading: true,
+        getBagData: undefined,
+        getBagError: undefined,
+    }),
+
+    // GET_BAG_SUCCESS
+    [ActionTypes.GET_BAG_SUCCESS]: (state, { payload }) => ({
+        ...state,
+        getBagLoading: false,
+        getBagData: payload,
+        getBagError: undefined,
+    }),
+
+    // GET_BAG_ERROR
+    [ActionTypes.GET_BAG_ERROR]: (state, { payload }) => ({
+        ...state,
+        getBagLoading: false,
+        getBagData: undefined,
+        getBagError: payload,
+    }),
+
+    // ADD_TO_BAG
+    [ActionTypes.ADD_TO_BAG]: state => ({
+        ...state,
+        addToBagLoading: true,
+        addToBagData: undefined,
+        addToBagError: undefined,
+    }),
+
+    // ADD_TO_BAG_SUCCESS
+    [ActionTypes.ADD_TO_BAG_SUCCESS]: (state, { payload }) => ({
+        ...state,
+        addToBagLoading: false,
+        addToBagData: payload,
+        addToBagError: undefined,
+    }),
+
+    // ADD_TO_BAG_ERROR
+    [ActionTypes.GET_BAG_ERROR]: (state, { payload }) => ({
+        ...state,
+        addToBagLoading: false,
+        addToBagData: undefined,
+        addToBagError: payload,
+    }),
+
+    // REMOVE_FROM_BAG
+    [ActionTypes.REMOVE_FROM_BAG]: state => ({
+        ...state,
+        removeFromBagLoading: true,
+        removeFromBagData: undefined,
+        removeFromBagError: undefined,
+    }),
+
+    // REMOVE_FROM_BAG_SUCCESS
+    [ActionTypes.REMOVE_FROM_BAG_SUCCESS]: (state, { payload }) => ({
+        ...state,
+        removeFromBagLoading: false,
+        removeFromBagData: payload,
+        removeFromBagError: undefined,
+    }),
+
+    // REMOVE_FROM_BAG_ERROR
+    [ActionTypes.REMOVE_FROM_BAG_ERROR]: (state, { payload }) => ({
+        ...state,
+        removeFromBagLoading: false,
+        removeFromBagData: undefined,
+        removeFromBagError: payload,
+    }),
+    
 }, {
     searchPokemonLoading: false,
     searchPokemonData: undefined,
     searchPokemonError: undefined,
+
+    getBagLoading: false,
+    getBagData: undefined,
+    getBagError: undefined,
+
+    addToBagLoading: false,
+    addToBagData: undefined,
+    addToBagError: undefined,
+
+    removeFromBagLoading: false,
+    removeFromBagData: undefined,
+    removeFromBagError: undefined,
 });
 
 const sagas = function* saga() {
     yield all([
 
 		// SEARCH_POKEMON
-		fork(function*() {
+		fork(function* () {
 			yield takeLatest(ActionTypes.SEARCH_POKEMON, function* (action) {
 				try {
 					const res = yield call(api.get, "pokemon", {
@@ -61,9 +158,39 @@ const sagas = function* saga() {
 					yield processError(err, actions.pokemon.searchPokemonError);
 				}
 			});
-		}),
+        }),
+
+        // GET_BAG
+        fork(function* () {
+            yield takeLatest(ActionTypes.GET_BAG, function* (action) {
+                try {
+                    const res = yield call(api.client_get, "bag");
+                    yield put(actions.pokemon.getBagSuccess(res));
+                } catch (err) {
+                    yield processError(err, actions.pokemon.getBagError);
+                }
+            });
+        }),
  
-    ])
+        // ADD_TO_BAG
+        fork(function* () {
+            yield takeLatest(ActionTypes.ADD_TO_BAG, function* (action) {
+                try {
+                    const res = yield call(api.client_post, "bag", {
+                        name: action.payload,
+                    });
+                    yield put(actions.pokemon.addToBagSuccess(res));
+                } catch (err) {
+                    yield processError(err, actions.pokemon.addToBagError);
+                }
+            });
+        }),
+
+        // REMOVE_FROM_BAG
+        fork(function* () {
+
+        }),
+    ]);
 }
 
 export default {

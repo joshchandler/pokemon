@@ -37,14 +37,13 @@ app.use('/', indexRouter);
  *  - Lazy loading
  */
 app.get('/pokemon', (req, res) => {
+    const searchString = req.query && req.query.search,
+        limit = req.query && req.query.limit,
+        offset = req.query && req.query.offset,
+        // empty query object gets all entries in the collection
+        queryArgs = {};
 
-    const searchString = req.query && req.query.search;
-    const limit = req.query && req.query.limit;
-    const offset = req.query && req.query.offset;
     console.log('****', limit, offset);
-
-    // empty query object gets all entries in the collection
-    let queryArgs = {};
 
     if (searchString) {
         // allow searching by name

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import Flexbox from 'flexbox-react';
 
+import Item from './Item';
 import { actions } from '../store';
 
 class ListView extends Component {
@@ -17,9 +18,52 @@ class ListView extends Component {
     this.fetchPokemon = this.fetchPokemon.bind(this);
     this.debouncedSearch = this.debouncedSearch.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.getBag = this.getBag.bind(this);
+    this.addToBag = this.addToBag.bind(this);
+    this.removeFromBag = this.removeFromBag.bind(this);
   }
 
-  fetchPokemon(search) {
+  componentDidMount() {
+    this.getBag();
+    this.fetchPokemon();
+  }
+
+  componentDidUpdate() {
+    const props = this.props;
+
+  }
+
+  render() {
+    const {
+      searchPokemonData = [],
+      getBagData,
+      getBagLoading,
+      searchPokemonLoading,
+    } = this.props;
+
+    if (getBagLoading || searchPokemonLoading) return <div />;
+
+    return (
+      <Wrapper>
+        <Flexbox flexDirection='column' alignItems='center'>
+          <Flexbox width='80%' marginTop='15px'>
+            <SearchItem onChange={this.debouncedSearch(this.onChange, 250, evt => evt.persist())} placeholder="Search for a Pokémon!" />
+          </Flexbox>
+        </Flexbox>
+        <Flexbox flexDirection='column' alignItems='center'>
+          <Flexbox marginTop='15px' padding='0'>
+            <Flexbox flexWrap='wrap'>
+              {searchPokemonData.map(entry => {
+                return <Item entry={entry} bagData={getBagData} key={entry.name}/>
+              })}
+            </Flexbox>
+          </Flexbox>
+        </Flexbox>
+      </Wrapper>
+    )
+  }
+
+  fetchPokemon(search = "") {
     search = search.toLowerCase();
 
     this.props.searchPokemon({
@@ -47,57 +91,61 @@ class ListView extends Component {
     this.fetchPokemon(evt.target.value);
   }
 
-  render() {
-    const { searchPokemonData = [] } = this.props;
-    return (
-      <Flexbox flexDirection='column' alignItems='center' width='100vw'>
-        <Flexbox width='250px' marginTop='13px'>
-          <input onChange={this.debouncedSearch(this.onChange, 250, evt => evt.persist())} placeholder="Search for a Pokémon!"/>
-        </Flexbox>
-        <Flexbox marginTop='15px' padding='0px 10vw'>
-          <Flexbox flexWrap='wrap'>
-            {searchPokemonData.map(entry => (
-              <ListItemDisplay>
-                <Flexbox key={entry.name} flexDirection='column'>
-                  <ListItemTitle>{entry.name}</ListItemTitle>
-                  <img src={entry.image} />
-                </Flexbox>
-              </ListItemDisplay>
-            ))}
-          </Flexbox>
-        </Flexbox>
-      </Flexbox>
-    )
+  addToBag(entry) {
+    this.props.addToBag(entry.name);
+  }
+
+  getBag() {
+    this.props.getBag();
+  }
+
+  removeFromBag() {
+    this.props.removeFromBag();
   }
 }
+
+
+const Wrapper = styled.div`
+  display: block;
+  width: 100%;
+`;
+
+const SearchItem = styled.input`
+  background: #ddd;
+  width: 100%;
+  padding: 10px;
+  border-radius: 0;
+  border: none;
+  transition: all 0.25s linear;
+
+  margin-left: 20px;
+  margin-right: 20px;
+
+  &:hover,
+  &:focus {
+    border: none;
+  }
+`;
+
 
 export default connect(
   ({ pokemon }) => ({
     searchPokemonLoading: pokemon.searchPokemonLoading,
     searchPokemonData: pokemon.searchPokemonData,
     searchPokemonError: pokemon.searchPokemonError,
+
+    getBagLoading: pokemon.getBagLoading,
+    getBagData: pokemon.getBagData,
+    getBagError: pokemon.getBagError,
+
+    addToBagLoading: pokemon.addToBagLoading,
+    addToBagData: pokemon.addToBagData,
+    addToBagError: pokemon.addToBagError,
+
   }),
   {
     searchPokemon: payload => actions.pokemon.searchPokemon(payload),
+    getBag: () => actions.pokemon.getBag(),
+    addToBag: payload => actions.pokemon.addToBag(payload),
   }
 )(ListView);
-
-
-const ListItemDisplay = styled.div`
-    padding: 10px;
-    border: 1px solid #fff;
-    border-radius: 10px;
-    box-shadow: 0px 0px 5px #ccc;
-    transition: all 0.25s linear;
-    width: 17vw;
-    margin: 5px;
-
-    &:hover{
-        box-shadow: 0px 0px 5px #0077c5;
-    }
-`;
-
-const ListItemTitle = styled.h2`
-    font-size: 16px;
-    font-weight: normal;
-`;
