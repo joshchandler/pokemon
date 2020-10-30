@@ -28,6 +28,7 @@ for (const key in ActionTypes) {
 
 const actions = createActions(actionsMap);
 
+let previousSearchTerm;
 const reducer = handleActions({
     // SEARCH_POKEMON
     [ActionTypes.SEARCH_POKEMON]: state => ({
@@ -40,9 +41,11 @@ const reducer = handleActions({
     [ActionTypes.SEARCH_POKEMON_SUCCESS]: (state, { payload }) => {
         let previousData;
 
-        if (payload.search === "" && state.searchPokemonData) {
+        if (payload.search === "" && !previousSearchTerm && state.searchPokemonData) {
             previousData = state.searchPokemonData.concat(payload.res);
         }
+
+        previousSearchTerm = payload.search;
 
         return {
             ...state,
@@ -154,11 +157,17 @@ const sagas = function* saga() {
 		// SEARCH_POKEMON
 		fork(function* () {
 			yield takeLatest(ActionTypes.SEARCH_POKEMON, function* (action) {
+                const {
+                    search,
+                    offset,
+                } = action.payload;
+
+                debugger;
 				try {
 					const res = yield call(api.get, "pokemon", {
-                        search: action.payload.search,
-                        limit: 20,
-                        offset: action.payload.search === "" && action.payload.offset,
+                        search,
+                        limit: search === "" ? 20 : undefined,
+                        offset: search === "" ? (previousSearchTerm ? 0 : offset) : undefined,
                     });
 					yield put(actions.pokemon.searchPokemonSuccess({
                         res,
