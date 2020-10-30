@@ -188,7 +188,14 @@ const sagas = function* saga() {
 
         // REMOVE_FROM_BAG
         fork(function* () {
-
+            yield takeLatest(ActionTypes.REMOVE_FROM_BAG, function* (action) {
+                try {
+                    const res = yield call(api.client_del, "bag", action.payload);
+                    yield put(actions.pokemon.removeFromBagSuccess(res));
+                } catch (err) {
+                    yield processError(err, actions.pokemon.removeFromBagError);
+                }
+            });
         }),
     ]);
 }

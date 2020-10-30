@@ -49,8 +49,11 @@ class Item extends Component {
     });
   }
 
-  removeFromBag() {
-    this.props.removeFromBag();
+  removeFromBag(entry) {
+    this.props.removeFromBag(entry.name);
+    this.setState({
+      inBag: false,
+    });
   }
 }
 
@@ -119,5 +122,6 @@ export default connect(
     searchPokemon: payload => actions.pokemon.searchPokemon(payload),
     getBag: () => actions.pokemon.getBag(),
     addToBag: payload => actions.pokemon.addToBag(payload),
+    removeFromBag: payload => actions.pokemon.removeFromBag(payload),
   }
 )(Item);

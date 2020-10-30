@@ -52,4 +52,12 @@ export async function client_del(table, id) {
     if (!db) db = new Dexie('Pokemon');
     await db.open();
     table = db._allTables[table];
+    let item = await table.where({
+        name: id,
+    }).first();
+
+    if (item) {
+        table.delete(item.id);
+    }
+    return item ? item.id : undefined;
 }
