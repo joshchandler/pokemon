@@ -65,6 +65,18 @@ app.get('/pokemon', (req, res) => {
 
     query.exec((err, data) => {
         if (!err) {
+
+            // If there is a limit set, the data ends up being out of order.
+            // This fixes that.
+            data.sort((a, b) => {
+                let aUrlSplit = a.url.split("/"),
+                    bUrlSplit = b.url.split("/"),
+                    aNum = parseInt(aUrlSplit[aUrlSplit.length - 2]),
+                    bNum = parseInt(bUrlSplit[bUrlSplit.length - 2]);
+
+                return aNum - bNum;
+            });
+
             res.json(data);
         } else {
             res.sendStatus(400);

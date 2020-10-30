@@ -4,15 +4,15 @@ import { all, fork } from "redux-saga/effects";
 import pokemon from "./pokemon";
 
 export const actions = {
-	...pokemon.actions,
+  ...pokemon.actions,
 };
 
 export const rootReducer = combineReducers({
-	pokemon: pokemon.reducer,
+  pokemon: pokemon.reducer,
 });
 
 export function* rootSaga() {
-	yield all([
-		fork(pokemon.sagas),
-	]);
+  yield all([
+    fork(pokemon.sagas),
+  ]);
 }

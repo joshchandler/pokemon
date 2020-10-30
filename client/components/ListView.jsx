@@ -83,20 +83,13 @@ class ListView extends Component {
     let state = this.state || {};
     let val = evt ? evt.target.value : "";
     let search = evt ? val.toLowerCase() : state.search.toLowerCase();
-    let offset = state.offset;
-
-    if (this.props.searchPokemonData) {
-      offset += 20;
-    }
 
     this.props.searchPokemon({
       search,
-      offset,
     });
 
     this.setState({
       search: search,
-      offset: offset,
     })
   }
 
@@ -117,10 +110,6 @@ class ListView extends Component {
   }
 
   onChange(evt) {
-    this.setState({
-      offset: 0,
-    });
-
     this.fetchPokemon(evt);
   }
 
