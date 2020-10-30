@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Flexbox from 'flexbox-react';
 
 import Item from './Item';
-import Search from './Search';
+// import Search from './Search';
 
 import { actions } from '../store';
 
@@ -12,13 +12,14 @@ class ListView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pokemon: [],
-      offset: 0,
-      limit: 20
+      filter: false,
     };
 
     this.fetchPokemon = this.fetchPokemon.bind(this);
+    this.debouncedSearch = this.debouncedSearch.bind(this);
+
     this.getBag = this.getBag.bind(this);
+    this.filterInBag = this.filterInBag.bind(this);
   }
 
   componentDidMount() {
@@ -27,43 +28,69 @@ class ListView extends Component {
   }
 
   render() {
-    const {
+    let {
       searchPokemonData = [],
       getBagData,
-      getBagLoading,
-      searchPokemonLoading,
     } = this.props;
-
-    if (getBagLoading || searchPokemonLoading) return <div />;
+    let pokemon = this.state.filter ? getBagData : searchPokemonData;
 
     return (
       <Wrapper>
         <Flexbox flexDirection='column' alignItems='center'>
-          <Search />
+          <Flexbox width='80%' marginTop='15px'>
+            <SearchItem
+              onChange={this.debouncedSearch(this.fetchPokemon, 250, evt => evt.persist())}
+              placeholder="Search for a Pokémon!"
+            />
+            <FilterButton onClick={this.filterInBag}>Filter Pokémon in bag</FilterButton>
+          </Flexbox>
         </Flexbox>
         <Flexbox flexDirection='column' alignItems='center'>
           <Flexbox marginTop='15px' padding='0'>
             <Flexbox flexWrap='wrap'>
-              {searchPokemonData.map(entry => {
+              {pokemon.map(entry => {
                 return <Item entry={entry} bagData={getBagData} key={entry.name}/>
               })}
             </Flexbox>
           </Flexbox>
         </Flexbox>
       </Wrapper>
-    )
+    );
   }
 
-  fetchPokemon(search = "") {
-    search = search.toLowerCase();
+  fetchPokemon(evt) {
+    let val = evt ? evt.target.value : "";
+    let search = val.toLowerCase();
 
     this.props.searchPokemon({
       search,
     });
   }
 
+  debouncedSearch(fn, delay, cb) {
+    let timer = null,
+      debFn = function () {
+        let args = arguments;
+
+        cb(...args);
+
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          fn(...args);
+        }, delay);
+      };
+
+    return debFn;
+  }
+
   getBag() {
     this.props.getBag();
+  }
+
+  filterInBag() {
+    this.setState({
+      filter: !this.state.filter,
+    });
   }
 }
 
@@ -71,6 +98,32 @@ class ListView extends Component {
 const Wrapper = styled.div`
   display: block;
   width: 100%;
+`;
+
+const SearchItem = styled.input`
+  background: #ddd;
+  width: 100%;
+  padding: 10px;
+  border-radius: 0;
+  border: none;
+  transition: all 0.25s linear;
+
+  margin-left: 20px;
+  margin-right: 20px;
+
+  &:hover,
+  &:focus {
+    border: none;
+  }
+`;
+
+const FilterButton = styled.button`
+  border: none;
+  border-radius: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 export default connect(

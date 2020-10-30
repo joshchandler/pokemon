@@ -57,7 +57,6 @@ const reducer = handleActions({
     [ActionTypes.GET_BAG]: state => ({
         ...state,
         getBagLoading: true,
-        getBagData: undefined,
         getBagError: undefined,
     }),
 
@@ -145,7 +144,6 @@ const reducer = handleActions({
 
 const sagas = function* saga() {
     yield all([
-
 		// SEARCH_POKEMON
 		fork(function* () {
 			yield takeLatest(ActionTypes.SEARCH_POKEMON, function* (action) {
@@ -176,10 +174,9 @@ const sagas = function* saga() {
         fork(function* () {
             yield takeLatest(ActionTypes.ADD_TO_BAG, function* (action) {
                 try {
-                    const res = yield call(api.client_post, "bag", {
-                        name: action.payload,
-                    });
+                    const res = yield call(api.client_post, "bag", action.payload);
                     yield put(actions.pokemon.addToBagSuccess(res));
+                    yield put(actions.pokemon.getBag());
                 } catch (err) {
                     yield processError(err, actions.pokemon.addToBagError);
                 }
@@ -192,6 +189,7 @@ const sagas = function* saga() {
                 try {
                     const res = yield call(api.client_del, "bag", action.payload);
                     yield put(actions.pokemon.removeFromBagSuccess(res));
+                    yield put(actions.pokemon.getBag());
                 } catch (err) {
                     yield processError(err, actions.pokemon.removeFromBagError);
                 }

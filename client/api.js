@@ -1,7 +1,6 @@
 import Dexie from 'dexie';
 
 let url = window.location.origin;
-
 let db;
 
 export async function get(path, queries = {}) {

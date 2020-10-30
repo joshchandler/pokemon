@@ -38,7 +38,7 @@ class Item extends Component {
 
   addToBag(entry, evt) {
     evt.preventDefault();
-    this.props.addToBag(entry.name);
+    this.props.addToBag(entry);
     this.setState({
       inBag: true,
     });
