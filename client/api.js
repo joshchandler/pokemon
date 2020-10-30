@@ -57,7 +57,8 @@ export async function client_del(table, id) {
     }).first();
 
     if (item) {
-        table.delete(item.id);
+        await table.delete(item.id);
     }
+
     return item ? item.id : undefined;
 }
