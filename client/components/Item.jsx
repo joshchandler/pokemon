@@ -19,7 +19,7 @@ class Item extends Component {
       entry = {},
       getBagData = [],
     } = this.props;
-    let inBag = this.state.inBag || getBagData.findIndex(item => item.name === entry.name) > -1;
+    let inBag = (this.state && this.state.inBag) || getBagData.findIndex(item => item.name === entry.name) > -1;
 
     return (
       <ListItemDisplay key={entry.name}>

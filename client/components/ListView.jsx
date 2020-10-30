@@ -51,7 +51,7 @@ class ListView extends Component {
       searchPokemonData = [],
       getBagData,
     } = this.props;
-    let pokemon = this.state.filter ? getBagData : searchPokemonData;
+    let pokemon = (this.state && this.state.filter) ? getBagData : searchPokemonData;
 
     return (
       <Wrapper>
@@ -80,9 +80,10 @@ class ListView extends Component {
   }
 
   fetchPokemon(evt) {
+    let state = this.state || {};
     let val = evt ? evt.target.value : "";
-    let search = evt ? val.toLowerCase() : this.state.search.toLowerCase();
-    let offset = this.state.offset;
+    let search = evt ? val.toLowerCase() : state.search.toLowerCase();
+    let offset = state.offset;
 
     if (this.props.searchPokemonData) {
       offset += 20;
@@ -129,7 +130,7 @@ class ListView extends Component {
 
   filterInBag() {
     this.setState({
-      filter: !this.state.filter,
+      filter: !(this.state && this.state.filter),
     });
   }
 }
