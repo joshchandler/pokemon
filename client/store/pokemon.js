@@ -33,17 +33,24 @@ const reducer = handleActions({
     [ActionTypes.SEARCH_POKEMON]: state => ({
         ...state,
         searchPokemonLoading: true,
-        searchPokemonData: undefined,
         searchPokemonError: undefined,
     }),
 
     // SEARCH_POKEMON_SUCCESS
-    [ActionTypes.SEARCH_POKEMON_SUCCESS]: (state, { payload }) => ({
-        ...state,
-        searchPokemonLoading: false,
-        searchPokemonData: payload,
-        searchPokemonError: undefined,
-    }),
+    [ActionTypes.SEARCH_POKEMON_SUCCESS]: (state, { payload }) => {
+        let previousData;
+
+        if (payload.search === "" && state.searchPokemonData) {
+            previousData = state.searchPokemonData.concat(payload.res);
+        }
+
+        return {
+            ...state,
+            searchPokemonLoading: false,
+            searchPokemonData: previousData || payload.res,
+            searchPokemonError: undefined,
+        };
+    },
 
     // SEARCH_POKEMON_ERROR
     [ActionTypes.SEARCH_POKEMON_ERROR]: (state, { payload }) => ({
@@ -150,8 +157,13 @@ const sagas = function* saga() {
 				try {
 					const res = yield call(api.get, "pokemon", {
                         search: action.payload.search,
+                        limit: 20,
+                        offset: action.payload.search === "" && action.payload.offset,
                     });
-					yield put(actions.pokemon.searchPokemonSuccess(res));
+					yield put(actions.pokemon.searchPokemonSuccess({
+                        res,
+                        search: action.payload.search,
+                    }));
 				} catch (err) {
 					yield processError(err, actions.pokemon.searchPokemonError);
 				}

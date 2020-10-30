@@ -8,6 +8,7 @@ import { actions } from '../store';
 class Item extends Component {
   constructor(props) {
     super(props);
+    this.state = {};
 
     this.addToBag = this.addToBag.bind(this);
     this.removeFromBag = this.removeFromBag.bind(this);
@@ -18,7 +19,7 @@ class Item extends Component {
       entry = {},
       getBagData = [],
     } = this.props;
-    let inBag = (this.state && this.state.inBag) || getBagData.findIndex(item => item.name === entry.name) > -1;
+    let inBag = this.state.inBag || getBagData.findIndex(item => item.name === entry.name) > -1;
 
     return (
       <ListItemDisplay key={entry.name}>
